@@ -4,6 +4,11 @@
 `CameraModel`, `track(left, right, pred)` and `std::vector<FeatureObs>` output). It reproduces the algorithm
 and OpenCV's numerics on the GPU; `uw_ct_vio/` (from uw-vio-dvl) is only read (the CPU reference is compiled from its source path).
 
+![Front-end latency per frame, CPU vs GPU](docs/figures/latency_cpu_vs_gpu.png)
+
+*`track()` latency on NTNU traj_06 (6058 frames) on the shared RTX 5080 workstation (other users' jobs inflate GPU tails); the
+CPU stage rows are replayed OpenCV calls and do not sum to the total. Not measured on Jetson Orin.*
+
 ## What runs where
 
 | Stage | Where | Fidelity to the CPU tracker |
@@ -17,6 +22,11 @@ and OpenCV's numerics on the GPU; `uw_ct_vio/` (from uw-vio-dvl) is only read (t
 | Shi-Tomasi per grid cell (min-eig response, threshold, 3x3 NMS, mask, min distance, greedy) | GPU, one block per cell | eigenvalue map within 1e-4 relative of cv::cornerMinEigenVal on the cell ROI; same features (test) |
 | FB check, NCC (optional), undistort, essential-matrix RANSAC, epipolar test | CPU (same code) | identical |
 | discs of the detection mask | CPU (cv::circle) then uploaded | identical |
+
+![What runs on GPU vs CPU](docs/figures/pipeline_gpu_vs_cpu.png)
+
+*Simplified stage overview (the actual per-frame order interleaves temporal LK, detection and stereo LK); see the table for
+exact fidelity.*
 
 Not implemented (constructor throws `std::invalid_argument`): `map_predict`, `reacquire`, `snr_sigma`,
 `ncc_noise_aware`. `pred` is ignored. Capacity: 2048 features (throws beyond). Image size must equal the camera
@@ -95,3 +105,12 @@ End-to-end ATE, uw_ct_vio best config (h05) on all 6 NTNU 2023 trajectories, GPU
 Reading: no accuracy loss on any trajectory. The GPU tracks are the same algorithm; they differ from the CPU
 ones only through floating-point paths that flip borderline forward-backward decisions, so the lower mean is
 NOT claimed as an improvement (one run per trajectory, no variance estimate).
+
+![End-to-end ATE, CPU vs GPU tracks](docs/figures/ate_cpu_vs_gpu.png)
+
+*ATE per trajectory from the table above (NTNU 2023 subset-3, one run each, no variance estimate: the lower GPU mean is not claimed as an improvement).*
+
+Regenerate the figures (needs matplotlib; inputs are the bench log and the run table, paths for our machine):
+```bash
+python3 bench/make_figures.py --bench-log <gpu_bench_ws1.log> --ate-tsv <ntnu_all.tsv>
+```
