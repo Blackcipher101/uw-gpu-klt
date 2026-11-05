@@ -42,12 +42,12 @@ Both are compiled with nvcc 12.8 (real code for 87, real + PTX for 120). Only sm
 
 ## Build and test
 
-Needs a sibling checkout of [uw-vio-dvl](../uw-vio-dvl) (the CPU reference tracker and the `FeatureObs` /
+Needs a sibling checkout of [uw-vio-dvl](https://github.com/Blackcipher101/uw-vio-dvl) (the CPU reference tracker and the `FeatureObs` /
 `KltConfig` types are compiled from `../uw-vio-dvl/uw_ct_vio`; override with `-DUWCT_DIR=`), GTSAM 4.2 installed
 to a prefix (`-DGTSAM_PREFIX=`, default `../deps/gtsam-4.2.0`), OpenCV 4, CUDA 12.8 and, for the bench, ROS 2 Jazzy.
 
 ```bash
-git clone <uw-vio-dvl> ../uw-vio-dvl
+git clone https://github.com/Blackcipher101/uw-vio-dvl ../uw-vio-dvl
 bash -lc 'source /opt/ros/jazzy/setup.bash && \
   cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DGTSAM_PREFIX=$HOME/deps/gtsam-4.2.0 \
         -DCMAKE_CUDA_COMPILER=/usr/local/cuda-12.8/bin/nvcc && \
