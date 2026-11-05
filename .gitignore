@@ -1,0 +1,6 @@
+build*/
+*.uwtrk
+*.out
+results/*.log
+!results/closed_keepalive.log
+!results/open_loop_keepalive.log
